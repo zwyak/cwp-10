@@ -5,7 +5,7 @@ function byField(field){
 function sortArray(array, field, order){
   let result = array;
   result.sort( byField(field) );
-  if (order == orders.DESC) result.reverse();
+  if (order == 'DESC') result.reverse();
   return result;
 }
 
