@@ -1,7 +1,9 @@
 const express = require('express');
+const films = require('./top250.js');
+const utils = require('./utils.js')
 const app = express();
 
-app.get('/', (req, res) => {
+app.get('/api/films/readall', (req, res) => {
   res.send('Hello World!');
 });
 
