@@ -5,10 +5,18 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-const shiftFilm = (position) =>{
-  films.filter( (film) =>{
-    if (film.position >= position) film.position++;
-  });
+const mods = {Forward: "F", Backward: "B" };
+
+const shiftFilm = (position, mod) =>{
+  if (mod == mods.Forward){
+    films.filter( (film) =>{
+      if (film.position >= position) film.position++;
+    });
+  }else if (mod = mods.Backward){
+    films.filter( (film) =>{
+      if (film.position > position) film.position--;
+    });
+  }
 }
 
 const createFilm = (title, rating, year, budget, gross, poster, position) =>{
@@ -34,7 +42,7 @@ const createFilm = (title, rating, year, budget, gross, poster, position) =>{
     const res = films.filter(film => film.position == position);
     if (res){
       console.log('Film positions were shifted');
-      shiftFilm(position);
+      shiftFilm(position, 'F');
     }
   }
 
@@ -45,18 +53,45 @@ const createFilm = (title, rating, year, budget, gross, poster, position) =>{
   return film;
 }
 
+function deleteFilm(id){
+  let index;
+  let result;
+
+  films.forEach((item, i) => {
+    if (item.id == id){
+      index = i;
+      result = item;
+    }
+  });
+
+  if (!result){
+    return '404 Not Found';
+  }
+
+
+  films.splice(index, 1);
+  shiftFilm(result.position, 'B');
+  utils.writeJson('./top250.json', JSON.stringify(films));
+  films = require('./top250.json');
+
+  return result;
+}
+
 app.get('/api/films/readall', (req, res) => {
   res.send(utils.sortArray(films, 'position', 'ASC'));
 });
 
 app.get('/api/films/read', (req, res) => {
   const result = films.filter(film => film.id == req.query.id);
-  console.log(result);
   res.send(result);
 });
 
 app.post('/api/films/create', (req, res) => {
   res.send(createFilm(req.body.title, req.body.rating, req.body.year, req.body.budget, req.body.gross, req.body.poster, req.body.position));
+});
+
+app.post('/api/films/delete', (req, res) => {
+  res.send(deleteFilm(req.body.id));
 });
 
 app.listen(3000, () => {
