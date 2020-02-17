@@ -19,6 +19,15 @@ const shiftFilm = (position, mod) =>{
   }
 }
 
+const deletePositionSpaces = (position) =>{
+  const arr = utils.sortArray(films, 'position', 'ASC');
+  const lastItem = arr[arr.length-1];
+  if (position - lastItem.position != 1){
+    position = lastItem.position + 1;
+  }
+  return position;
+}
+
 const createFilm = (title, rating, year, budget, gross, poster, position) =>{
   let film ={
     id: Date.now(),
@@ -31,14 +40,30 @@ const createFilm = (title, rating, year, budget, gross, poster, position) =>{
     position: 0
   };
 
+  if (year && year >= 1900 && year <= new Date().getFullYear()){
+    film.year = year;
+  }else{
+    return {Error: year, ErrorField: 'year'};
+  }
+
+  if (budget && budget >= 0){
+    film.budget = budget;
+  }else{
+    return {Error: budget, ErrorField: 'budget'};
+  }
+
+  if (gross && gross >= 0){
+    film.gross = gross;
+  }else{
+    return {Error: gross, ErrorField: 'gross'};
+  }
+
   if (title) film.title = title;
   if (rating) film.rating = rating;
-  if (year) film.year = year;
-  if (budget) film.budget = budget;
-  if (gross) film.gross = gross;
   if (poster) film.poster = poster;
   if (position){
-    film.position = position;
+    if (position <= 0) return {Error: position, ErrorField: 'position'};
+    film.position = deletePositionSpaces(position);
     const res = films.filter(film => film.position == position);
     if (res){
       console.log('Film positions were shifted');
@@ -65,7 +90,7 @@ function deleteFilm(id){
   });
 
   if (!result){
-    return '404 Not Found';
+    return {Error: '404 Not Found'};
   }
 
 
