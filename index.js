@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 
 const shiftFilm = (position) =>{
   films.filter( (film) =>{
-    if (film.position <= position) film.position--;
+    if (film.position >= position) film.position++;
   });
 }
 
